@@ -1,0 +1,194 @@
+---
+
+# How to use this Playbook
+#
+# Prerequisite Steps(from home directory):
+#   Install Ansible
+#     1) Create Virtual Environment
+#          mkdir ~/.pyenv && cd ~/.pyenv && python3 -m venv v_ansible
+#     2) Activate Virtual Environment
+#          source v_ansible/bin/activate
+#     3) Upgrade pip for good measure
+#          python3 -m pip install --upgrade-pip (I think)
+#     4) Install Ansible in Virtual Environment
+#          python3 -m pip install ansible
+#
+#     Note: Make sure to "Activate" the virtual environment every time before trying to use Ansible
+#           (Step 2)
+# 
+# How to run Playbook (With Virtual Environment Activated):
+#     ansible-playbook -i inventory.yml --become --ask-become-pass bp_fedora_workstation.yml
+#
+# NOTE: A bash script "configure.sh" is included in the same directory as this file.
+#       The script activates the ansible virtual environment and runs the ansible-playbook command.
+#
+# When prompted, provide credentials for sudo
+#
+
+- hosts: all
+  vars:
+    - my_home: "/home/bp"
+    - anaconda_installer: "Miniconda2-latest-Linux-x86_64.sh"
+  tasks:
+    - name: Update All Packages
+      become: yes
+      dnf:
+        name: "*"
+        state: latest
+
+    - name: Microsoft vscode; Add Yum Repository
+      yum_repository:
+        name: code
+        description: Visual Studio Code
+        baseurl: https://packages.microsoft.com/yumrepos/vscode
+        gpgcheck: yes
+        gpgkey: https://packages.microsoft.com/keys/microsoft.asc
+    
+    - name: Install Packages
+      become: yes
+      dnf:
+        name: "{{ item }}"
+        state: latest
+      loop:
+        - code
+        - docker
+        - meld
+        - sqlitebrowser
+        # Required for gdal conda-forge package
+        # https://github.com/AppImage/pkg2appimage/issues/336
+        - libnsl
+        - libgfortran
+        # Required to build heclib
+        - gcc
+        - gcc-c++
+        - gcc-gfortran
+        - make
+        - zlib-devel
+        - java-1.8.0-openjdk-devel
+
+    # Docker Postinstall
+    # https://docs.docker.com/install/linux/linux-postinstall/
+    #
+    - name: Docker; Create the docker group
+      become: yes
+      group:
+        name: docker
+        state: present
+
+    - name: Docker; Add my login to docker group
+      become: yes
+      user:
+        name: "{{ ansible_user }}"
+        groups: docker
+        append: yes
+    
+    - name: Docker; Start on boot
+      become: yes 
+      systemd:
+        name: docker
+        enabled: yes
+        state: reloaded
+
+    # Equivalent of:
+    # curl -L "https://github.com/docker/compose/releases/download/1.23.2/docker-compose-$(uname -s)-$(uname -m)" \
+    # -o /usr/local/bin/docker-compose
+    #
+    - name: docker-compose; Install
+      become: yes
+      get_url:
+        url: https://github.com/docker/compose/releases/download/1.23.2/docker-compose-Linux-x86_64
+        dest: /usr/local/bin/docker-compose
+        mode: 0755
+  
+   # Install vscode Extensions: https://code.visualstudio.com/docs/editor/extension-gallery#_command-line-extension-management
+    - name: Microsoft vscode; Install Extensions
+      shell: "code --install-extension {{ item }}"
+      loop:
+        - "ms-python.python"
+        - "peterjausovec.vscode-docker"
+
+#   # Miniconda and Conda Package Install (Work in Progress; Portions Commented)
+#   # Until Complete, run the following commands after running playbook
+#   # and follow prompts:
+#       
+#       cd $HOME && bash ./Miniconda2-latest-Linux-x86_64.sh
+#       source ~/miniconda2/bin/activate
+#       conda install -c conda-forge libgdal
+#       conda install -c conda-forge gdal
+#       
+    - name: miniconda; Download Installer
+      get_url:
+        url: https://repo.anaconda.com/miniconda/{{ anaconda_installer }}
+        dest: "{{ my_home }}/{{ anaconda_installer }}"
+        mode: 0700
+
+#    - name: miniconda; Run Installer
+#      shell: "{{ my_home }}/{{ anaconda_installer }}"
+#      args:
+#        chdir: "{{ my_home }}"
+#        executable: /bin/bash
+#
+#
+    - name: miniconda; Install Conda Packages
+      shell: |
+        source {{ my_home }}/miniconda2/bin/activate
+        yes | conda install -c conda-forge "{{ item }}"
+      args:
+        executable: /bin/bash
+      loop:
+        - gdal
+
+
+# Conda Python Environment (pip install)
+    - name: miniconda2 Python Packages (pip)
+      pip:
+        virtualenv: "{{ my_home }}/miniconda2"
+        name: "{{ item }}"
+      loop:
+        - pylint
+
+# Directories to emulate cpc-cwms2 environment
+    - name: cpc-cwms2 environment; directories
+      file:
+        state: directory
+        path: "{{ item }}"
+      with_items:
+        - "{{ my_home }}/cwmsgrid"
+
+# Symlinks to emulate cpc-cwms2 environment
+    - name: cpc-cwms2 environment; symlinks
+      become: yes
+      file:
+        state: link
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        force: yes
+      with_items:
+        - { src: "{{ my_home }}", dest: "/netapp" }
+        - { src: "{{ my_home }}/projects/cumulus", dest: "/netapp/cwmsgrid/software" }
+
+    - name: QGIS; Enable QGIS LTR Repository
+      become: yes
+      shell: yes | dnf copr enable dani/qgis-ltr
+      tags: qgis
+      # yum_repository:
+      #   name: dani-qgis
+      #   file: "_copr:copr.fedorainfracloud.org:dani:qgis"
+      #   baseurl: "https://copr-be.cloud.fedoraproject.org/results/dani/qgis/fedora-$releasever-$basearch/"
+      #   skip_if_unavailable: yes
+      #   gpgcheck: yes
+      #   gpgkey: "https://copr-be.cloud.fedoraproject.org/results/dani/qgis/pubkey.gpg"
+      #   repo_gpgcheck: no
+      #   enabled: yes
+
+    - name: QGIS; Install QGIS
+      # https://qgis.org/en/site/forusers/alldownloads.html#qgis-ltr-long-term-release
+      become: yes
+      dnf:
+        name: qgis, python3-qgis, qgis-grass
+        state: latest
+        enable_plugin: copr
+      tags:
+        - qgis
+...
+
