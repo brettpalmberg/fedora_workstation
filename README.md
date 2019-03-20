@@ -23,6 +23,10 @@ python3 -m pip install --upgrade pip
 python3 -m pip install ansible
 ```
 
+#### Prerequisite Step: Edit Variables
+Review variables in `bp_fedora_workstation.yml`.  Variables are located in section `vars:`.
+At a minimum, `my_home` should be updated to reflect your user home directory.
+
 #### How to run Playbook (With Virtual Environment Activated):
 Note: Make sure to "Activate" the virtual environment before trying to use Ansible (see step 2 above)
 
