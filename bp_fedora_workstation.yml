@@ -116,12 +116,12 @@
 #       conda install -c conda-forge libgdal
 #       conda install -c conda-forge gdal
 #       
-    - name: miniconda; Download Installer
-      get_url:
-        url: https://repo.anaconda.com/miniconda/{{ anaconda_installer }}
-        dest: "{{ my_home }}/{{ anaconda_installer }}"
-        mode: 0700
-
+#    - name: miniconda; Download Installer
+#      get_url:
+#        url: https://repo.anaconda.com/miniconda/{{ anaconda_installer }}
+#        dest: "{{ my_home }}/{{ anaconda_installer }}"
+#        mode: 0700
+#
 #    - name: miniconda; Run Installer
 #      shell: "{{ my_home }}/{{ anaconda_installer }}"
 #      args:

@@ -16,7 +16,7 @@ source v_ansible/bin/activate
 ```
 3. Upgrade pip for good measure
 ```
-python3 -m pip install --upgrade-pip
+python3 -m pip install --upgrade pip
 ```
 4. Install Ansible in Virtual Environment
 ```
@@ -27,7 +27,7 @@ python3 -m pip install ansible
 Note: Make sure to "Activate" the virtual environment before trying to use Ansible (see step 2 above)
 
 ```
-ansible-playbook -i inventory.yml --become --ask-become-pass bp_fedora_workstation.yml
+ansible-playbook -i inventory.yml --ask-become-pass bp_fedora_workstation.yml
 ```
 #### OR
 
