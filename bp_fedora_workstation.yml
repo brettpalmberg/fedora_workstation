@@ -12,6 +12,7 @@
         state: latest
 
     - name: Microsoft vscode; Add Yum Repository
+      become: yes
       yum_repository:
         name: code
         description: Visual Studio Code
@@ -29,6 +30,7 @@
         - docker
         - meld
         - sqlitebrowser
+        - inkscape
     
     # Required to build heclib/HEC-DSS
     - name: Packages to Build DSS
