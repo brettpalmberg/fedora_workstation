@@ -30,6 +30,7 @@
         - docker
         - meld
         - sqlitebrowser
+        - gimp
         - inkscape
     
     # Required to build heclib/HEC-DSS
