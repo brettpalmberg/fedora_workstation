@@ -32,7 +32,17 @@
         - sqlitebrowser
         - gimp
         - inkscape
-    
+        - nodejs
+        # Security Compliance Scan Your Apps
+        - openscap-utils
+      
+    - name: Install Amazon Web Services (AWS) Command Line Utility (CLI)
+      # Note: Installs to Virtual Environment Due to Ansible Running in Virtual Environment
+      pip:
+        name: awscli
+        executable: pip3
+        extra_args: --upgrade
+
     # Required to build heclib/HEC-DSS
     - name: Packages to Build DSS
       become: yes
@@ -90,6 +100,8 @@
       loop:
         - "ms-python.python"
         - "peterjausovec.vscode-docker"
+        - "lextudio.restructuredtext"
+        - "joshpeng.sublime-babel-vscode"
 
 #   # Miniconda and Conda Package Install (Work in Progress; Portions Commented)
 #   # Until Complete, run the following commands after running playbook
