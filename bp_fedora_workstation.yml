@@ -29,6 +29,7 @@
         - code
         - docker
         - meld
+        - nodejs
         - sqlitebrowser
         - gimp
         - inkscape
@@ -102,6 +103,7 @@
         - "peterjausovec.vscode-docker"
         - "lextudio.restructuredtext"
         - "joshpeng.sublime-babel-vscode"
+        - "esbenp.prettier-vscode"
 
 #   # Miniconda and Conda Package Install (Work in Progress; Portions Commented)
 #   # Until Complete, run the following commands after running playbook
