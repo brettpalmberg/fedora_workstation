@@ -100,7 +100,7 @@
       shell: "code --install-extension {{ item }}"
       loop:
         - "ms-python.python"
-        - "peterjausovec.vscode-docker"
+        - "ms-azuretools.vscode-docker"
         - "lextudio.restructuredtext"
         - "joshpeng.sublime-babel-vscode"
         - "esbenp.prettier-vscode"
