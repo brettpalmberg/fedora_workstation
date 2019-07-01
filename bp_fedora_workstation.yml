@@ -33,7 +33,6 @@
         - sqlitebrowser
         - gimp
         - inkscape
-        - nodejs
         # Security Compliance Scan Your Apps
         - openscap-utils
       
