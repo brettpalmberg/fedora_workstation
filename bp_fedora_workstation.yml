@@ -20,6 +20,15 @@
         gpgcheck: yes
         gpgkey: https://packages.microsoft.com/keys/microsoft.asc
     
+    - name: Increase File Handle Limit
+      # See: https://code.visualstudio.com/docs/setup/linux
+      # #_visual-studio-code-is-unable-to-watch-for-file-changes-in-this-large-workspace-error-enospc
+      become: yes
+      sysctl:
+        name: fs.inotify.max_user_watches
+        value: 524288
+        state: present
+    
     - name: Install Packages
       become: yes
       dnf:
