@@ -8,7 +8,7 @@ This playbook has been developed and used on Fedora 29.
   
 1. Create Virtual Environment
 ```
-mkdir ~/.pyenv && cd ~/.pyenv && python3 -m venv v_ansible`
+mkdir ~/.pyenv && cd ~/.pyenv && python3 -m venv v_ansible
 ```
 2.  Activate Virtual Environment
 ```

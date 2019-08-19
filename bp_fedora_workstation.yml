@@ -3,7 +3,6 @@
 - hosts: all
   vars:
     - my_home: "/home/bp"
-    - anaconda_installer: "Miniconda2-latest-Linux-x86_64.sh"
   tasks:
     - name: Update All Packages
       become: yes
@@ -44,7 +43,7 @@
         - inkscape
         # Security Compliance Scan Your Apps
         - openscap-utils
-      
+
     - name: Install Amazon Web Services (AWS) Command Line Utility (CLI)
       # Note: Installs to Virtual Environment Due to Ansible Running in Virtual Environment
       pip:
@@ -71,7 +70,6 @@
 
     # Docker Postinstall
     # https://docs.docker.com/install/linux/linux-postinstall/
-    #
     - name: Docker; Create the docker group
       become: yes
       group:
@@ -95,7 +93,6 @@
     # Equivalent of:
     # curl -L "https://github.com/docker/compose/releases/download/1.23.2/docker-compose-$(uname -s)-$(uname -m)" \
     # -o /usr/local/bin/docker-compose
-    #
     - name: docker-compose; Install
       become: yes
       get_url:
@@ -112,96 +109,6 @@
         - "lextudio.restructuredtext"
         - "joshpeng.sublime-babel-vscode"
         - "esbenp.prettier-vscode"
-
-#   # Miniconda and Conda Package Install (Work in Progress; Portions Commented)
-#   # Until Complete, run the following commands after running playbook
-#   # and follow prompts:
-#       
-#       cd $HOME && bash ./Miniconda2-latest-Linux-x86_64.sh
-#       source ~/miniconda2/bin/activate
-#       conda install -c conda-forge libgdal
-#       conda install -c conda-forge gdal
-#       
-    - name: miniconda; Download Installer
-      get_url:
-        url: https://repo.anaconda.com/miniconda/{{ anaconda_installer }}
-        dest: "{{ my_home }}/{{ anaconda_installer }}"
-        mode: 0700
-      tags:
-        - never
-        - miniconda
-
-    - name: miniconda; Run Installer
-      shell: "{{ my_home }}/{{ anaconda_installer }}"
-      args:
-        chdir: "{{ my_home }}"
-        executable: /bin/bash
-      tags:
-        - never
-        - miniconda
-
-    - name: Packages for conda-forge
-      become: yes
-      dnf:
-        name: "{{ item }}"
-        state: latest
-      loop:     
-        # Required for gdal conda-forge package
-        # https://github.com/AppImage/pkg2appimage/issues/336
-        - libnsl
-        - libgfortran
-      tags:
-        - never
-        - miniconda
-
-    - name: miniconda; Install Conda Packages
-      shell: |
-        source {{ my_home }}/miniconda2/bin/activate
-        yes | conda install -c conda-forge "{{ item }}"
-      args:
-        executable: /bin/bash
-      loop:
-        - gdal
-      tags:
-        - never
-        - miniconda
-
-    # Conda Python Environment (pip install)
-    - name: miniconda2 Python Packages (pip)
-      pip:
-        virtualenv: "{{ my_home }}/miniconda2"
-        name: "{{ item }}"
-      loop:
-        - pylint
-      tags:
-        - never
-        - miniconda
-
-# Directories to emulate cpc-cwms2 environment
-    - name: cpc-cwms2 environment; directories
-      file:
-        state: directory
-        path: "{{ item }}"
-      with_items:
-        - "{{ my_home }}/cwmsgrid"
-      tags:
-        - never
-        - cpc
-
-# Symlinks to emulate cpc-cwms2 environment
-    - name: cpc-cwms2 environment; symlinks
-      become: yes
-      file:
-        state: link
-        src: "{{ item.src }}"
-        dest: "{{ item.dest }}"
-        force: yes
-      with_items:
-        - { src: "{{ my_home }}", dest: "/netapp" }
-        - { src: "{{ my_home }}/projects/cumulus", dest: "/netapp/cwmsgrid/software" }
-      tags:
-        - never
-        - cpc
 
     - name: QGIS; Enable QGIS LTR Repository
       become: yes
