@@ -1,6 +1,6 @@
 ## Ansible Playbook to Replicate BP Development Environment From Scratch
 
-This playbook has been developed and used on Fedora 29.
+This playbook has been developed and used on Fedora Workstation: 29, 30.
 
 ### How to use this Playbook
 
