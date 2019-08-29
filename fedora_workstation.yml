@@ -99,6 +99,7 @@
       get_url:
         url: https://github.com/docker/compose/releases/download/{{ docker_compose_version}}/docker-compose-Linux-x86_64
         dest: /usr/local/bin/docker-compose
+        force: yes
         mode: 0755
   
    # Install vscode Extensions: https://code.visualstudio.com/docs/editor/extension-gallery#_command-line-extension-management
